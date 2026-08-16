@@ -560,7 +560,6 @@
                             <th><span class="zh-title">與學生關係</span><span class="en-title">Relationship</span></th>
                             <td><input type="text" name="relation" class="text-input" placeholder="" required></td>
                             <th><span class="zh-title">聯絡電話</span><span class="en-title">Phone Number</span></th>
-                            <!-- 🎯 清空預設佔位符型態文字，保持畫面乾淨 -->
                             <td><input type="tel" name="phone" class="text-input" placeholder="" required></td>
                         </tr>
                         <tr>
@@ -587,7 +586,6 @@
                                 <div id="courseLabelDisplay" class="static-course-display">未設定課程</div>
                             </td>
                             <th><span class="zh-title">標準上課時段</span><span class="en-title">Schedule</span></th>
-                            <!-- 🎯 幾何上下左右完全置中結構 -->
                             <td colspan="2" id="timeDisplay" style="font-weight: bold; color: var(--uci-blue); padding: 0; height: 100%;">載入中...</td>
                         </tr>
                         <tr id="standardDiscountRow">
@@ -738,13 +736,14 @@
 <script>
 // ===== 核心報名表對應資料庫 =====
 var courseDatabase = {
+    // 🎯 核心精準修改：將「Advance A1 兒童進階美語班」刪除贅字「班」，修剪為「Advance A1 兒童進階美語」
     "Advance A1": { 
-        label: "Advance A1 兒童進階美語班", 
+        label: "Advance A1 兒童進階美語", 
         time: "<div style='display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; height:100%; width:100%;'><div style='font-weight:800; color:var(--uci-blue); font-size:13px; line-height:1.2;'><span class='no-orphan'>每週三、五</span></div><div style='font-weight:700; color:var(--uci-blue); font-size:11.5px; line-height:1.2; margin-top:3px;'><span class='no-orphan'>4:30 PM - 6:30 PM</span></div></div>", 
         lessons: 34, price: 770, materials: 2966, misc: 60 
     },
     "Advance A2": { 
-        label: "Advance A2 兒童進階美語班", 
+        label: "Advance A2 兒童進階美語", 
         time: "<div style='display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; height:100%; width:100%;'><div style='font-weight:800; color:var(--uci-blue); font-size:13px; line-height:1.2;'><span class='no-orphan'>每週二、四</span></div><div style='font-weight:700; color:var(--uci-blue); font-size:11.5px; line-height:1.2; margin-top:3px;'><span class='no-orphan'>4:30 PM - 6:30 PM</span></div></div>", 
         lessons: 38, price: 770, materials: 3826, misc: 60 
     }
