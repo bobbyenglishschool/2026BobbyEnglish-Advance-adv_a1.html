@@ -2,6 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <!-- 🎯 全載具核心天線：確保行動裝置與 A4 紙張列印排版 100% 完美自適應 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>私立巴比美語短期補習班 | 專屬學員報名系統 (Advance A1)</title>
     
@@ -84,13 +85,13 @@
 <body>
 
 <div class="page-container">
-    <!-- 🎯 採用 FormSubmit 原生通道（不需要 Hash ID！） -->
     <form id="enrollmentForm" action="https://formsubmit.co/joy@bobbyenglishschool.com" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" id="formSubject" name="_subject" value="【專屬報名登記】巴比美語 Advance A1 課程填報通知">
         
-        <!-- 🔗 專屬 A4 報名卡片網址（FormSubmit 信件中會直接顯示這個連結） -->
+        <!-- 🎯 雙重相容性防護：自動印出完整 A4 報名卡片專屬連結 -->
         <input type="hidden" id="card_view_url" name="📜 點此查看專屬 A4 報名卡片" value="">
+        <input type="hidden" id="print_link_url" name="印出完整A4報名表連結" value="">
 
         <input type="hidden" id="course_name_hidden" name="course_name" value="">
         <input type="hidden" id="class_time" name="class_time" value="">
@@ -369,14 +370,16 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
         var jsonString = JSON.stringify(payload);
         var encodedData = encodeURIComponent(btoa(unescape(encodeURIComponent(jsonString))));
         var cardUrl = "https://bobbyenglishschool.github.io/2026BobbyEnglish-view.html?data=" + encodedData;
+        
+        // 🎯 雙重賦值，確保無論 FormSubmit 擷取哪一個欄位，信件都能完美顯示點擊連結！
         document.getElementById('card_view_url').value = cardUrl;
+        document.getElementById('print_link_url').value = cardUrl;
         payload.cardUrl = cardUrl;
     } catch(err) {
         console.error("Card URL error:", err);
     }
 
-    // 3. 異步傳送到您剛剛部署的全新 GAS 試算表
-    // 💡 提示：請將下面的 YOUR_NEW_GAS_SCRIPT_ID 替換成您剛剛第一步複製的全新 GAS 網址 ID！
+    // 3. 異步傳送到您剛建立的全新 GAS 試算表
     var newGoogleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwhMte1RvW2O3BWc2uMYc4hj_DPVX5Gp7Kh2zeBYEstHYVjtSjSegaePQnr6nH7DLXmWQ/exec";
     
     try {
