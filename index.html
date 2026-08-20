@@ -102,13 +102,12 @@
 </div>
 
 <div class="page-container">
-    <!-- 🎯 核心修復：FormSubmit 提交設定與驗證 -->
     <form id="enrollmentForm" action="https://formsubmit.co/joy@bobbyenglishschool.com" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" id="formSubject" name="_subject" value="【專屬報名登記】巴比美語 Advance A1 課程填報通知">
         
-        <!-- 🎯 點擊信件連結直達完整 A4 報名表 PDF 檢視 view -->
-        <input type="hidden" id="print_link_url" name="🖨️ 點此點開並列印完整A4報名表PDF" value="">
+        <!-- 🎯 精簡短網址：可生成標準可點擊超連結 -->
+        <input type="hidden" id="print_link_url" name="🖨️ 點此開啟完整A4報名表並列印" value="">
 
         <input type="hidden" id="course_name_hidden" name="course_name" value="">
         <input type="hidden" id="class_time" name="class_time" value="">
@@ -386,7 +385,7 @@ function showImagePreview(input) {
     }
 }
 
-// 🎯 核心修復：先發送背景 GAS，完成後讓 FormSubmit 正常完成 HTTP 郵件提交！
+// 🎯 表單送出處理
 document.getElementById('enrollmentForm').addEventListener('submit', function(e) {
     var form = this;
     var submitBtn = document.getElementById('submitBtn');
@@ -399,20 +398,22 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
     var now = new Date();
     var timeString = now.getFullYear() + "/" + (now.getMonth()+1) + "/" + now.getDate() + " " + now.getHours() + ":" + String(now.getMinutes()).padStart(2, '0');
 
-    // 1. 打包 FormSubmit 可帶入的專屬列印 PDF 網址
+    // 生成超乾淨列印網址
     try {
-        var params = new URLSearchParams(new FormData(form));
-        params.append('view_mode', 'true');
-        params.append('auto_print', 'true');
+        var sName = encodeURIComponent(document.getElementById('student_name_zh').value);
+        var pName = encodeURIComponent(document.getElementById('parent_name').value);
+        var pSig = encodeURIComponent(document.getElementById('parent_signature').value);
+        var disc = document.querySelector('input[name="discount_plan"]:checked').value;
         
         var baseUrl = window.location.href.split('?')[0];
-        var fullPrintUrl = baseUrl + '?' + params.toString();
-        document.getElementById('print_link_url').value = fullPrintUrl;
+        var cleanPrintUrl = baseUrl + '?view_mode=true&auto_print=true&student_name_zh=' + sName + '&parent_name=' + pName + '&parent_signature=' + pSig + '&discount_plan=' + disc;
+        
+        document.getElementById('print_link_url').value = cleanPrintUrl;
     } catch(err) {
         console.error("Print URL error:", err);
     }
 
-    // 2. 打包資料同步發送給 GAS 試算表
+    // 打包傳給 GAS
     var payload = {
         type: "enrollment",
         course: TARGET_COURSE,
@@ -431,7 +432,6 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
 
     var newGoogleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwhMte1RvW2O3BWc2uMYc4hj_DPVX5Gp7Kh2zeBYEstHYVjtSjSegaePQnr6nH7DLXmWQ/exec";
     
-    // 異步非同步發送 GAS，並確保 FormSubmit 不會被死死攔截
     try {
         fetch(newGoogleAppsScriptUrl, {
             method: 'POST',
@@ -455,7 +455,7 @@ function populateFormFromParams(params) {
                 var radio = document.querySelector('input[name="' + key + '"][value="' + value + '"]');
                 if (radio) radio.checked = true;
             } else {
-                field.value = value;
+                field.value = decodeURIComponent(value);
             }
         }
     });
