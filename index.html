@@ -106,7 +106,7 @@
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" id="formSubject" name="_subject" value="【專屬報名登記】巴比美語 Advance A1 課程填報通知">
         
-        <!-- 🎯 精簡超連結（只有標準超連結，不會爆長） -->
+        <!-- 🎯 精簡超連結 (只有標準 Clean URL，防止超長裁切) -->
         <input type="hidden" id="print_link_url" name="print_link_url" value="">
 
         <input type="hidden" id="course_name_hidden" name="course_name" value="Advance A1">
@@ -339,15 +339,20 @@ window.onload = function() {
 
 function calculateTuition() {
     var discountRate = parseFloat(document.querySelector('input[name="discount_plan"]:checked').value);
-    var tuitionTotal = 770 * 34;
-    var materialsTotal = 3520;
-    var miscTotal = 60 * 34;
-    var grandTotal = Math.round((tuitionTotal + materialsTotal + miscTotal) * discountRate);
+    var rawTuition = 770 * 34; // $26,180
+    var rawMaterials = 3520;
+    var rawMisc = 60 * 34;      // $2,040
+    
+    // 🎯 核心大腦算式：全項目動態計算 Math.round((學費+教材+學雜費)*折扣率)
+    var calcTuition = Math.round(rawTuition * discountRate);
+    var calcMaterials = Math.round(rawMaterials * discountRate);
+    var calcMisc = Math.round(rawMisc * discountRate);
+    var grandTotal = Math.round((rawTuition + rawMaterials + rawMisc) * discountRate);
 
     document.getElementById('total_amount').value = "$" + grandTotal.toLocaleString();
-    document.getElementById('sub_tuition').value = Math.round(tuitionTotal * discountRate);
-    document.getElementById('sub_materials').value = Math.round(materialsTotal * discountRate);
-    document.getElementById('sub_misc').value = Math.round(miscTotal * discountRate);
+    document.getElementById('sub_tuition').value = calcTuition;
+    document.getElementById('sub_materials').value = calcMaterials;
+    document.getElementById('sub_misc').value = calcMisc;
 
     document.getElementById('calcPreview').innerHTML = "📚 <b>應繳總金額套用折扣後：NT$ " + grandTotal.toLocaleString() + " 元</b>";
 }
@@ -370,18 +375,29 @@ function showImagePreview(input) {
     }
 }
 
-// 🎯 原生無死角提交
+// 🎯 原生無死角提交與 Clean URL 參數封裝
 document.getElementById('enrollmentForm').addEventListener('submit', function(e) {
-    var sName = encodeURIComponent(document.getElementById('student_name_zh').value);
-    var pName = encodeURIComponent(document.getElementById('parent_name').value);
+    var sNameZh = encodeURIComponent(document.getElementById('student_name_zh').value || '');
+    var sNameEn = encodeURIComponent(document.getElementById('student_name_en').value || '');
+    var pName = encodeURIComponent(document.getElementById('parent_name').value || '');
+    var phone = encodeURIComponent(document.getElementById('phone').value || '');
+    var email = encodeURIComponent(document.getElementById('email').value || '');
+    var address = encodeURIComponent(document.getElementById('address').value || '');
     var disc = document.querySelector('input[name="discount_plan"]:checked').value;
     
     var baseUrl = window.location.href.split('?')[0];
-    var cleanPrintUrl = baseUrl + '?view_mode=true&auto_print=true&student_name_zh=' + sName + '&parent_name=' + pName + '&discount_plan=' + disc;
+    var cleanPrintUrl = baseUrl + '?view_mode=true&auto_print=true' +
+                        '&student_name_zh=' + sNameZh + 
+                        '&student_name_en=' + sNameEn + 
+                        '&parent_name=' + pName + 
+                        '&phone=' + phone + 
+                        '&email=' + email + 
+                        '&address=' + address + 
+                        '&discount_plan=' + disc;
     
     document.getElementById('print_link_url').value = cleanPrintUrl;
 
-    // 異步備份給 GAS
+    // 異步備份給 GAS (不跳頁、不干擾 FormSubmit)
     try {
         var payload = {
             type: "enrollment",
@@ -398,13 +414,16 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
             notes: "家長簽名: " + document.getElementById('parent_signature').value,
             cardUrl: cleanPrintUrl
         };
+        
         fetch("https://script.google.com/macros/s/AKfycbwhMte1RvW2O3BWc2uMYc4hj_DPVX5Gp7Kh2zeBYEstHYVjtSjSegaePQnr6nH7DLXmWQ/exec", {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-    } catch(err) {}
+    } catch(err) {
+        console.warn("GAS fetch notice:", err);
+    }
 });
 
 function populateFormFromParams(params) {
