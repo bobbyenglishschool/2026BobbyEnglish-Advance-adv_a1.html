@@ -106,23 +106,22 @@
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" id="formSubject" name="_subject" value="【專屬報名登記】巴比美語 Advance A1 課程填報通知">
         
-        <!-- 🎯 精簡短網址：可生成標準可點擊超連結 -->
-        <input type="hidden" id="print_link_url" name="🖨️ 點此開啟完整A4報名表並列印" value="">
+        <!-- 🎯 精簡超連結（只有標準超連結，不會爆長） -->
+        <input type="hidden" id="print_link_url" name="print_link_url" value="">
 
-        <input type="hidden" id="course_name_hidden" name="course_name" value="">
-        <input type="hidden" id="class_time" name="class_time" value="">
+        <input type="hidden" id="course_name_hidden" name="course_name" value="Advance A1">
         <input type="hidden" id="sub_tuition" name="sub_tuition" value="0">
         <input type="hidden" id="sub_materials" name="sub_materials" value="0">
         <input type="hidden" id="sub_misc" name="sub_misc" value="0">
 
         <!-- ================= PAGE 1 ================= -->
         <div class="page page1">
-            <div id="dynamicBannerDisplay" class="dynamic-top-banner">載入中...</div>
+            <div id="dynamicBannerDisplay" class="dynamic-top-banner">Advance A1 專屬智慧報名系統</div>
 
             <div class="header-section">
                 <div class="title-area">
-                    <h1 class="main-title" id="mainTitleDisplay">私立巴比美語短期補習班 ｜ 全能智慧校務報名系統</h1>
-                    <h2 class="sub-title" id="subTitleDisplay">Bobby English School - Smart Course Enrollment Form</h2>
+                    <h1 class="main-title" id="mainTitleDisplay">私立巴比美語短期補習班 ｜ Advance A1 專屬智慧報名系統</h1>
+                    <h2 class="sub-title" id="subTitleDisplay">Bobby English School - Advance A1 Enrollment Form</h2>
                     <div class="contact-info">
                         <p><strong>電話 / Phone：</strong>03-2161338</p>
                         <p><strong>官方 / Line：</strong>@bobbyenglish</p>
@@ -195,9 +194,9 @@
                     <tbody>
                         <tr>
                             <th><span class="zh-title">就讀班別</span><span class="en-title">Course</span></th>
-                            <td colspan="2"><div id="courseLabelDisplay" class="static-course-display">未設定課程</div></td>
+                            <td colspan="2"><div id="courseLabelDisplay" class="static-course-display"><div class="course-id">Advance A1</div><div class="course-zh">兒童進階美語</div></div></td>
                             <th><span class="zh-title">標準上課時段</span><span class="en-title">Schedule</span></th>
-                            <td colspan="2" id="timeDisplay" style="padding: 0; text-align: center; vertical-align: middle;">載入中...</td>
+                            <td colspan="2" id="timeDisplay" style="padding: 0; text-align: center; vertical-align: middle;">每週三、五 4:30 PM - 6:30 PM</td>
                         </tr>
                         <tr id="standardDiscountRow">
                             <th><span class="zh-title">優惠方案配置</span><span class="en-title">Discount Plan</span></th>
@@ -322,24 +321,15 @@
 </div>
 
 <script>
-var courseDatabase = {
-    "Advance A1": { id: "Advance A1", zhName: "兒童進階美語", time: "每週三、五 4:30 PM - 6:30 PM", lessons: 34, price: 770, materials: 3520, misc: 60 }
-};
-
-var TARGET_COURSE = "Advance A1"; 
+var TARGET_COURSE = "Advance A1";
 
 window.onload = function() {
     var urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('view_mode') || urlParams.has('student_name_zh')) {
+    if (urlParams.has('view_mode')) {
         populateFormFromParams(urlParams);
         return;
     }
 
-    document.getElementById('course_name_hidden').value = TARGET_COURSE;
-    document.getElementById('mainTitleDisplay').innerHTML = "私立巴比美語短期補習班 ｜ " + TARGET_COURSE + " 專屬智慧報名系統";
-    document.getElementById('subTitleDisplay').innerHTML = "Bobby English School - Smart Course Enrollment Form";
-    document.getElementById('dynamicBannerDisplay').innerHTML = TARGET_COURSE + " 專屬智慧報名系統";
-    
     var today = new Date().toISOString().split('T')[0];
     if (document.getElementById('parentSigDate')) document.getElementById('parentSigDate').value = today;
     if (document.getElementById('teacherSigDate')) document.getElementById('teacherSigDate').value = today;
@@ -348,18 +338,13 @@ window.onload = function() {
 };
 
 function calculateTuition() {
-    var course = courseDatabase[TARGET_COURSE];
     var discountRate = parseFloat(document.querySelector('input[name="discount_plan"]:checked').value);
-    
-    var tuitionTotal = course.price * course.lessons;
-    var materialsTotal = course.materials;
-    var miscTotal = course.misc * course.lessons;
+    var tuitionTotal = 770 * 34;
+    var materialsTotal = 3520;
+    var miscTotal = 60 * 34;
     var grandTotal = Math.round((tuitionTotal + materialsTotal + miscTotal) * discountRate);
 
-    document.getElementById('courseLabelDisplay').innerHTML = "<div class='course-id'>" + course.id + "</div><div class='course-zh'>" + course.zhName + "</div>";
-    document.getElementById('timeDisplay').innerText = course.time;
     document.getElementById('total_amount').value = "$" + grandTotal.toLocaleString();
-    
     document.getElementById('sub_tuition').value = Math.round(tuitionTotal * discountRate);
     document.getElementById('sub_materials').value = Math.round(materialsTotal * discountRate);
     document.getElementById('sub_misc').value = Math.round(miscTotal * discountRate);
@@ -385,63 +370,41 @@ function showImagePreview(input) {
     }
 }
 
-// 🎯 表單送出處理
+// 🎯 原生無死角提交
 document.getElementById('enrollmentForm').addEventListener('submit', function(e) {
-    var form = this;
-    var submitBtn = document.getElementById('submitBtn');
-
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerText = "正在傳送報名資料，請稍候...";
-    }
-
-    var now = new Date();
-    var timeString = now.getFullYear() + "/" + (now.getMonth()+1) + "/" + now.getDate() + " " + now.getHours() + ":" + String(now.getMinutes()).padStart(2, '0');
-
-    // 生成超乾淨列印網址
-    try {
-        var sName = encodeURIComponent(document.getElementById('student_name_zh').value);
-        var pName = encodeURIComponent(document.getElementById('parent_name').value);
-        var pSig = encodeURIComponent(document.getElementById('parent_signature').value);
-        var disc = document.querySelector('input[name="discount_plan"]:checked').value;
-        
-        var baseUrl = window.location.href.split('?')[0];
-        var cleanPrintUrl = baseUrl + '?view_mode=true&auto_print=true&student_name_zh=' + sName + '&parent_name=' + pName + '&parent_signature=' + pSig + '&discount_plan=' + disc;
-        
-        document.getElementById('print_link_url').value = cleanPrintUrl;
-    } catch(err) {
-        console.error("Print URL error:", err);
-    }
-
-    // 打包傳給 GAS
-    var payload = {
-        type: "enrollment",
-        course: TARGET_COURSE,
-        time: timeString,
-        studentName: document.getElementById('student_name_zh').value,
-        englishName: document.getElementById('student_name_en').value,
-        schoolGrade: (document.getElementById('school').value || '') + " 第" + (document.getElementById('grade').value || '') + "年級",
-        parentName: document.getElementById('parent_name').value,
-        phone: document.getElementById('phone').value,
-        email: document.getElementById('email').value,
-        className: TARGET_COURSE + " 兒童進階美語",
-        feeDetails: document.getElementById('total_amount').value,
-        notes: "家長簽名: " + document.getElementById('parent_signature').value,
-        cardUrl: document.getElementById('print_link_url').value
-    };
-
-    var newGoogleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwhMte1RvW2O3BWc2uMYc4hj_DPVX5Gp7Kh2zeBYEstHYVjtSjSegaePQnr6nH7DLXmWQ/exec";
+    var sName = encodeURIComponent(document.getElementById('student_name_zh').value);
+    var pName = encodeURIComponent(document.getElementById('parent_name').value);
+    var disc = document.querySelector('input[name="discount_plan"]:checked').value;
     
+    var baseUrl = window.location.href.split('?')[0];
+    var cleanPrintUrl = baseUrl + '?view_mode=true&auto_print=true&student_name_zh=' + sName + '&parent_name=' + pName + '&discount_plan=' + disc;
+    
+    document.getElementById('print_link_url').value = cleanPrintUrl;
+
+    // 異步備份給 GAS
     try {
-        fetch(newGoogleAppsScriptUrl, {
+        var payload = {
+            type: "enrollment",
+            course: TARGET_COURSE,
+            time: new Date().toLocaleString(),
+            studentName: document.getElementById('student_name_zh').value,
+            englishName: document.getElementById('student_name_en').value,
+            schoolGrade: (document.getElementById('school').value || '') + " 第" + (document.getElementById('grade').value || '') + "年級",
+            parentName: document.getElementById('parent_name').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            className: "Advance A1 兒童進階美語",
+            feeDetails: document.getElementById('total_amount').value,
+            notes: "家長簽名: " + document.getElementById('parent_signature').value,
+            cardUrl: cleanPrintUrl
+        };
+        fetch("https://script.google.com/macros/s/AKfycbwhMte1RvW2O3BWc2uMYc4hj_DPVX5Gp7Kh2zeBYEstHYVjtSjSegaePQnr6nH7DLXmWQ/exec", {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-    } catch(err) {
-        console.warn("GAS fetch error:", err);
-    }
+    } catch(err) {}
 });
 
 function populateFormFromParams(params) {
@@ -461,7 +424,6 @@ function populateFormFromParams(params) {
     });
 
     calculateTuition();
-
     if (params.get('auto_print') === 'true') {
         setTimeout(function() { window.print(); }, 800);
     }
