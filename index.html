@@ -375,7 +375,7 @@ function showImagePreview(input) {
     }
 }
 
-// 🎯 原生無死角提交與 Clean URL 參數封裝
+// 🎯 原生無死角提交與 Clean URL 參數封裝 (更新為 Joy 總司令全新部署之 GAS Web App ID)
 document.getElementById('enrollmentForm').addEventListener('submit', function(e) {
     var sNameZh = encodeURIComponent(document.getElementById('student_name_zh').value || '');
     var sNameEn = encodeURIComponent(document.getElementById('student_name_en').value || '');
@@ -397,7 +397,7 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
     
     document.getElementById('print_link_url').value = cleanPrintUrl;
 
-    // 異步備份給 GAS (不跳頁、不干擾 FormSubmit)
+    // 異步備份給全新 GAS (不跳頁、不干擾 FormSubmit)
     try {
         var payload = {
             type: "enrollment",
@@ -415,7 +415,9 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
             cardUrl: cleanPrintUrl
         };
         
-        fetch("https://script.google.com/macros/s/AKfycbwhMte1RvW2O3BWc2uMYc4hj_DPVX5Gp7Kh2zeBYEstHYVjtSjSegaePQnr6nH7DLXmWQ/exec", {
+        var newGoogleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwOdzl9x0Kq2fYRpjyKkDbvkGobLgANCrC15tUhPB1nEYQ01Ij89BJ8V1rwmb2WBY1wOg/exec";
+
+        fetch(newGoogleAppsScriptUrl, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
