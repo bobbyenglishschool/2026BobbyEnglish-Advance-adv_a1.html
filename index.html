@@ -47,22 +47,12 @@
 
         .text-input, .static-course-display { border: none; background: transparent; width: 100%; height: 100%; outline: none; font-size: 13px; color: inherit; padding: 4px 8px; }
         
-        /* 🎯 契合協定：選讀班別拆兩行，幾何 100% 精準置中 */
         .static-course-display { font-weight: bold; color: var(--uci-blue); font-size: 13.5px; display: flex; flex-direction: column; align-items: center !important; justify-content: center !important; text-align: center !important; height: 100%; }
         .static-course-display .course-id { font-size: 14px; font-weight: 800; line-height: 1.2; }
         .static-course-display .course-zh { font-size: 12px; font-weight: 600; margin-top: 3px; line-height: 1.2; }
 
-        /* 🎯 契合協定：DOB選取器右對齊與 12px 安全氣墊防撞氣墊 */
-        input[type="date"].text-input { 
-            display: block; 
-            text-align: right !important; 
-            padding-right: 12px !important; 
-            box-sizing: border-box;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            margin-right: 4px;
-            cursor: pointer;
-        }
+        input[type="date"].text-input { display: block; text-align: right !important; padding-right: 12px !important; box-sizing: border-box; }
+        input[type="date"]::-webkit-calendar-picker-indicator { margin-right: 4px; cursor: pointer; }
 
         .radio-group { display: flex; align-items: center; gap: 12px; padding-left: 4px; height: 100%; flex-wrap: wrap; }
         .radio-group label { display: flex; align-items: center; gap: 4px; cursor: pointer; white-space: nowrap; }
@@ -76,16 +66,16 @@
         .terms-list strong { color: var(--uci-blue); font-size: 14px; font-weight: 800; }
         .agreement-text { text-align: center; font-size: 14.5px; font-weight: 800; color: var(--soft-red); margin: 25px 0 20px 0; line-height: 1.6; }
         
-        .signature-section { display: flex; justify-content: space-between; margin-top: 25px; gap: 20px; }
-        .signature-box { flex: 1; width: 50%; border: 1.5px solid var(--uci-blue) !important; padding: 16px; border-radius: 8px; background-color: #fafbfc; }
-        .signature-row { display: flex; align-items: flex-end; margin-bottom: 12px; height: 38px; }
-        .signature-row span { color: var(--uci-blue); font-weight: 700; font-size: 13px; width: 140px; flex-shrink: 0; }
-        .signature-input { border: none; border-bottom: 1.5px solid #666; background: transparent; flex: 1; outline: none; font-size: 15px; padding: 2px 5px; }
+        /* 🎯 簽名畫布雙區塊 */
+        .dual-signature-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; width: 100%; margin-top: 15px; margin-bottom: 20px; }
+        .signature-block { width: 48%; display: flex; flex-direction: column; }
+        .signature-label { font-size: 13px; color: var(--uci-blue); font-weight: 700; margin-bottom: 8px; }
+        .signature-canvas-container { width: 100%; height: 140px; background-color: #fff; border: 1.5px dashed var(--uci-blue) !important; position: relative; border-radius: 6px; overflow: hidden; }
+        canvas { width: 100%; height: 100%; cursor: crosshair; display: block; touch-action: none; }
+        .canvas-clear-btn { position: absolute; bottom: 6px; right: 6px; background-color: var(--soft-red); color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: 700; z-index: 10; }
 
         .submit-btn-container { margin-top: 30px; text-align: center; }
         .submit-btn { background-color: var(--uci-gold); color: var(--uci-blue); border: none; padding: 15px 40px; font-size: 17px; font-weight: 800; border-radius: 30px; cursor: pointer; width: 100%; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .submit-btn:disabled { background-color: #cccccc !important; color: #666666 !important; cursor: not-allowed; }
-
         .top-print-bar { display: none; background: var(--uci-blue); color: #fff; padding: 12px; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .top-print-bar button { background: var(--uci-gold); color: var(--uci-blue); border: none; padding: 8px 20px; font-weight: 800; border-radius: 20px; cursor: pointer; font-size: 14px; }
 
@@ -95,15 +85,16 @@
             .page-container { box-shadow: none; max-width: 100%; }
             .page1 { break-after: page; }
             .page { padding: 0; }
-            .submit-btn-container, .top-print-bar { display: none !important; }
+            .submit-btn-container, .top-print-bar, .canvas-clear-btn { display: none !important; }
             table, th, td { border: 1px solid #1b3d6d !important; }
+            .signature-canvas-container { border: 1px solid var(--uci-blue) !important; }
         }
 
         @media (max-width: 768px) {
             body { padding: 8px; }
             .page { padding: 15px 12px; }
-            .signature-section { flex-direction: column; gap: 15px; }
-            .signature-box { width: 100%; }
+            .dual-signature-row { flex-direction: column; gap: 15px; }
+            .signature-block { width: 100%; }
             table { min-width: 600px; }
         }
     </style>
@@ -115,11 +106,9 @@
 </div>
 
 <div class="page-container">
-    <form id="enrollmentForm" action="https://formsubmit.co/joy@bobbyenglishschool.com" method="POST" enctype="multipart/form-data">
+    <form id="enrollmentForm" action="https://formsubmit.co/joy@bobbyenglishschool.com" method="POST" enctype="multipart/form-data" onsubmit="return prepareSubmit(event)">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" id="formSubject" name="_subject" value="【專屬報名登記】巴比美語 Advance A1 課程填報通知">
-        
-        <!-- 🎯 精簡超連結 -->
         <input type="hidden" id="print_link_url" name="print_link_url" value="">
 
         <input type="hidden" id="course_name_hidden" name="course_name" value="Advance A1">
@@ -208,7 +197,6 @@
                         <tr>
                             <th><span class="zh-title">就讀班別</span><span class="en-title">Course</span></th>
                             <td colspan="2">
-                                <!-- 🎯 契合協定：刪除「班」贅字，分為兩行，幾何 100% 精準置中 -->
                                 <div id="courseLabelDisplay" class="static-course-display">
                                     <div class="course-id">Advance A1</div>
                                     <div class="course-zh">世界探索與語言活用</div>
@@ -216,14 +204,12 @@
                             </td>
                             <th><span class="zh-title">標準上課時段</span><span class="en-title">Schedule</span></th>
                             <td colspan="2" id="timeDisplay" style="padding: 0; text-align: center; vertical-align: middle;">
-                                <!-- 🎯 契合協定：第一行上課星期，第二行上課時間，幾何對稱置中 -->
                                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;">
                                     <div style="font-weight: 800; color: var(--uci-blue); font-size: 13px;">每週三、五</div>
                                     <div style="font-weight: 700; color: var(--uci-blue); font-size: 11.5px; margin-top: 2px;">4:30 PM - 6:30 PM (2小時/堂)</div>
                                 </div>
                             </td>
                         </tr>
-                        <!-- 🎯 契合協定：去身分標籤，統一標籤名稱 -->
                         <tr>
                             <th><span class="zh-title">學員身分標籤</span><span class="en-title">Student Identity</span></th>
                             <td colspan="5">
@@ -324,26 +310,20 @@
                 <span style="font-size: 11.5px; font-weight: 400; color: var(--text-sub); display: block; margin-top: 4px; font-style: italic;">I have read, understood, and fully agreed to all the terms and conditions of Bobby English School services stated above.</span>
             </div>
 
-            <div class="signature-section">
-                <div class="signature-box">
-                    <div class="signature-row">
-                        <span>家長/監護人簽名 (Signature)</span>
-                        <input type="text" id="parent_signature" name="parent_signature" class="signature-input" required>
-                    </div>
-                    <div class="signature-row">
-                        <span>日期 Date</span>
-                        <input type="date" name="parent_sig_date" id="parentSigDate" class="signature-input" required>
+            <!-- 🎯 契合協定：升級為親筆電子簽名雙畫布結構 -->
+            <div class="dual-signature-row">
+                <div class="signature-block">
+                    <span class="signature-label">✍️ 甲方家長/監護人親筆電子簽名區：</span>
+                    <div class="signature-canvas-container">
+                        <canvas id="parentSigPad"></canvas>
+                        <button type="button" class="canvas-clear-btn" onclick="clearSig('parent')">清除重簽 / Clear</button>
                     </div>
                 </div>
-
-                <div class="signature-box">
-                    <div class="signature-row">
-                        <span>承辦老師簽章 (Staff)</span>
-                        <input type="text" name="teacher_signature" class="signature-input" value="Joy">
-                    </div>
-                    <div class="signature-row">
-                        <span>日期 Date</span>
-                        <input type="date" name="teacher_sig_date" id="teacherSigDate" class="signature-input">
+                <div class="signature-block">
+                    <span class="signature-label">🛡️ 乙方補習班授權行政審查人員簽名區：</span>
+                    <div class="signature-canvas-container">
+                        <canvas id="staffSigPad"></canvas>
+                        <button type="button" class="canvas-clear-btn" onclick="clearSig('staff')">清除重簽 / Clear</button>
                     </div>
                 </div>
             </div>
@@ -357,31 +337,86 @@
 
 <script>
 var TARGET_COURSE = "Advance A1";
+var parentCanvas = document.getElementById('parentSigPad');
+var staffCanvas = document.getElementById('staffSigPad');
+var parentCtx = parentCanvas.getContext('2d');
+var staffCtx = staffCanvas.getContext('2d');
+var isDrawingParent = false, isDrawingStaff = false;
+
+function setupCanvas(canvas, ctx) {
+    var rect = canvas.parentElement.getBoundingClientRect();
+    var ratio = window.devicePixelRatio || 1;
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    ctx.scale(ratio, ratio);
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+}
+
+function initCanvases() {
+    setupCanvas(parentCanvas, parentCtx);
+    parentCtx.strokeStyle = "#1b3d6d";
+    setupCanvas(staffCanvas, staffCtx);
+    staffCtx.strokeStyle = "#0077b6";
+}
+
+function getPos(canvas, e) {
+    var rect = canvas.getBoundingClientRect();
+    var clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    var clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+parentCanvas.addEventListener('mousedown', function(e) { isDrawingParent = true; var p = getPos(parentCanvas, e); parentCtx.beginPath(); parentCtx.moveTo(p.x, p.y); });
+parentCanvas.addEventListener('mousemove', function(e) { if(isDrawingParent) { var p = getPos(parentCanvas, e); parentCtx.lineTo(p.x, p.y); parentCtx.stroke(); } });
+window.addEventListener('mouseup', function() { isDrawingParent = false; });
+parentCanvas.addEventListener('touchstart', function(e) { isDrawingParent = true; var p = getPos(parentCanvas, e); parentCtx.beginPath(); parentCtx.moveTo(p.x, p.y); }, {passive: true});
+parentCanvas.addEventListener('touchmove', function(e) { if(isDrawingParent) { var p = getPos(parentCanvas, e); parentCtx.lineTo(p.x, p.y); parentCtx.stroke(); } }, {passive: true});
+parentCanvas.addEventListener('touchend', function() { isDrawingParent = false; });
+
+staffCanvas.addEventListener('mousedown', function(e) { isDrawingStaff = true; var p = getPos(staffCanvas, e); staffCtx.beginPath(); staffCtx.moveTo(p.x, p.y); });
+staffCanvas.addEventListener('mousemove', function(e) { if(isDrawingStaff) { var p = getPos(staffCanvas, e); staffCtx.lineTo(p.x, p.y); staffCtx.stroke(); } });
+window.addEventListener('mouseup', function() { isDrawingStaff = false; });
+staffCanvas.addEventListener('touchstart', function(e) { isDrawingStaff = true; var p = getPos(staffCanvas, e); staffCtx.beginPath(); staffCtx.moveTo(p.x, p.y); }, {passive: true});
+staffCanvas.addEventListener('touchmove', function(e) { if(isDrawingStaff) { var p = getPos(staffCanvas, e); staffCtx.lineTo(p.x, p.y); staffCtx.stroke(); } }, {passive: true});
+staffCanvas.addEventListener('touchend', function() { isDrawingStaff = false; });
+
+function clearSig(target) {
+    if(target === 'parent') parentCtx.clearRect(0, 0, parentCanvas.width, parentCanvas.height);
+    else staffCtx.clearRect(0, 0, staffCanvas.width, staffCanvas.height);
+}
+
+function isCanvasBlank(canvas) {
+    var ctx = canvas.getContext('2d');
+    var pixelBuffer = new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
+    var count = 0;
+    for (var i = 0; i < pixelBuffer.length; i++) {
+        if (pixelBuffer[i] !== 0) {
+            count++;
+            if (count > 50) return false;
+        }
+    }
+    return true;
+}
 
 window.onload = function() {
+    initCanvases();
     var urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('view_mode')) {
         populateFormFromParams(urlParams);
         return;
     }
-
-    var today = new Date().toISOString().split('T')[0];
-    if (document.getElementById('parentSigDate')) document.getElementById('parentSigDate').value = today;
-    if (document.getElementById('teacherSigDate')) document.getElementById('teacherSigDate').value = today;
-
     calculateTuition();
 };
 
 function calculateTuition() {
     var discountRate = parseFloat(document.querySelector('input[name="discount_plan"]:checked').value);
     var identity = document.querySelector('input[name="student_identity"]:checked').value;
-
-    var rawTuition = 770 * 34; // $26,180
-    // 🎯 契合協定：新生購買教材 $3,520，舊生免購買教材 $0
+    var rawTuition = 770 * 34;
     var rawMaterials = (identity === 'new') ? 3520 : 0;
-    var rawMisc = 60 * 34;      // $2,040
+    var rawMisc = 60 * 34;
     
-    // 🎯 核心大腦最高算式：全項目動態連動 Math.round((學費 + 教材費 + 學雜費) * 折扣率)
     var calcTuition = Math.round(rawTuition * discountRate);
     var calcMaterials = Math.round(rawMaterials * discountRate);
     var calcMisc = Math.round(rawMisc * discountRate);
@@ -414,8 +449,13 @@ function showImagePreview(input) {
     }
 }
 
-// 🎯 原生無死角提交與 Clean URL 參數封裝
-document.getElementById('enrollmentForm').addEventListener('submit', function(e) {
+function prepareSubmit(e) {
+    if (isCanvasBlank(parentCanvas) && parentCanvas.style.display !== 'none') {
+        if(e) e.preventDefault();
+        alert("⚠️ 智慧防呆提示：負責人 Joy 主任溫馨提醒您，請家長務必先在左側藍色畫布內完成「親筆電子簽章」，才能送出報名表喔！");
+        return false;
+    }
+
     var sNameZh = encodeURIComponent(document.getElementById('student_name_zh').value || '');
     var sNameEn = encodeURIComponent(document.getElementById('student_name_en').value || '');
     var pName = encodeURIComponent(document.getElementById('parent_name').value || '');
@@ -437,8 +477,8 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
                         '&discount_plan=' + disc;
     
     document.getElementById('print_link_url').value = cleanPrintUrl;
+    var pSigData = parentCanvas.toDataURL("image/png");
 
-    // 異步備份給 GAS
     try {
         var payload = {
             type: "enrollment",
@@ -452,11 +492,12 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
             email: document.getElementById('email').value,
             className: "Advance A1 兒童進階美語",
             feeDetails: document.getElementById('total_amount').value,
-            notes: "家長簽名: " + document.getElementById('parent_signature').value + " (" + (identity === 'new' ? '新生' : '舊生') + ")",
+            notes: "家長親筆電子簽名完備 (" + (identity === 'new' ? '新生' : '舊生') + ")",
+            parentSignatureBase64: pSigData,
             cardUrl: cleanPrintUrl
         };
         
-        var newGoogleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbyq7xVUoKxy7dEi6EIBdYKOxH53jnx4ZsuOSnqfcFb6bfdZ2FlzUuFF-APO6IngJ8qwPw/exec";
+        var newGoogleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwOdzl9x0Kq2fYRpjyKkDbvkGobLgANCrC15tUhPB1nEYQ01Ij89BJ8V1rwmb2WBY1wOg/exec";
 
         fetch(newGoogleAppsScriptUrl, {
             method: 'POST',
@@ -464,10 +505,10 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-    } catch(err) {
-        console.warn("GAS fetch notice:", err);
-    }
-});
+    } catch(err) { console.warn("GAS fetch notice:", err); }
+
+    return true;
+}
 
 function populateFormFromParams(params) {
     document.getElementById('topPrintBar').style.display = 'block';
@@ -490,6 +531,11 @@ function populateFormFromParams(params) {
         setTimeout(function() { window.print(); }, 800);
     }
 }
+
+window.onresize = function() {
+    setupCanvas(parentCanvas, parentCtx);
+    setupCanvas(staffCanvas, staffCtx);
+};
 </script>
 </body>
 </html>
