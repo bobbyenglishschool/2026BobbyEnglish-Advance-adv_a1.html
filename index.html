@@ -701,37 +701,43 @@ function prepareSubmit(e) {
     document.getElementById('print_link_url').value = cleanPrintUrl;
     var pSigData = parentCanvas.toDataURL("image/png");
 
-    try {
-        var payload = {
-            type: "enrollment",
-            course: TARGET_COURSE,
-            time: new Date().toLocaleString(),
-            studentName: document.getElementById('student_name_zh').value,
-            englishName: document.getElementById('student_name_en').value,
-            schoolGrade: (document.getElementById('school').value || '') + " 第" + (document.getElementById('grade').value || '') + "年級",
-            parentName: document.getElementById('parent_name').value,
-            phone: document.getElementById('phone').value,
-            email: document.getElementById('email').value,
-            className: "Advance A1 兒童進階美語",
-            feeDetails: document.getElementById('total_amount').value,
-            notes: "家長親筆電子簽名完備 (" + (identity === 'new' ? '新生' : '舊生') + ")",
-            parentSignatureBase64: pSigData,
-            cardUrl: cleanPrintUrl
-        };
-        
-        var newGoogleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbyq7xVUoKxy7dEi6EIBdYKOxH53jnx4ZsuOSnqfcFb6bfdZ2FlzUuFF-APO6IngJ8qwPw/exec";
+    // 🎯 構建 GAS 發送封包
+    var payload = {
+        type: "enrollment",
+        course: TARGET_COURSE,
+        time: new Date().toLocaleString(),
+        studentName: document.getElementById('student_name_zh').value,
+        englishName: document.getElementById('student_name_en').value,
+        schoolGrade: (document.getElementById('school').value || '') + " 第" + (document.getElementById('grade').value || '') + "年級",
+        parentName: document.getElementById('parent_name').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        className: "Advance A1 兒童進階美語",
+        feeDetails: document.getElementById('total_amount').value,
+        notes: "家長親筆電子簽名完備 (" + (identity === 'new' ? '新生' : '舊生') + ")",
+        parentSignatureBase64: pSigData,
+        cardUrl: cleanPrintUrl
+    };
+    
+    var newGoogleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwOdzl9x0Kq2fYRpjyKkDbvkGobLgANCrC15tUhPB1nEYQ01Ij89BJ8V1rwmb2WBY1wOg/exec";
 
-        fetch(newGoogleAppsScriptUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+    // 🎯 關鍵修復：使用 sendBeacon 或 確保 fetch 在表單提交前觸發發送
+    try {
+        if (navigator.sendBeacon) {
+            var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+            navigator.sendBeacon(newGoogleAppsScriptUrl, blob);
+        } else {
+            fetch(newGoogleAppsScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        }
     } catch(err) { console.warn("GAS fetch notice:", err); }
 
     return true;
 }
-
 function populateFormFromParams(params) {
     document.getElementById('topPrintBar').style.display = 'block';
     document.getElementById('submitBtnContainer').style.display = 'none';
