@@ -433,12 +433,13 @@
                         </tr>
                         <tr>
                             <th><span class="zh-title">學員身分標籤</span><span class="en-title">Student Identity</span></th>
-                            <td colspan="5">
-                                <div class="radio-group">
-                                    <label><input type="radio" name="student_identity" value="new" checked onchange="calculateTuition()"> 新生（需購買教材）</label>
-                                    <label><input type="radio" name="student_identity" value="old" onchange="calculateTuition()"> 舊生（無需購買教材）</label>
-                                </div>
-                            </td>
+<td colspan="5">
+    <div class="radio-group">
+        <label><input type="radio" name="student_identity" value="new" checked onchange="calculateTuition()"> 新生（需購買教材）</label>
+        <label><input type="radio" name="student_identity" value="old_with_mat" onchange="calculateTuition()"> 舊生（需購買教材）</label>
+        <label style="opacity: 0.5; cursor: not-allowed;"><input type="radio" name="student_identity" value="old_no_mat" disabled> 舊生（無需購買教材 - 本學期暫不開放）</label>
+    </div>
+</td>
                         </tr>
                         <tr id="standardDiscountRow">
                             <th><span class="zh-title">優惠方案配置</span><span class="en-title">Discount Plan</span></th>
@@ -633,9 +634,9 @@ window.onload = function() {
 function calculateTuition() {
     var discountRate = parseFloat(document.querySelector('input[name="discount_plan"]:checked').value);
     var identity = document.querySelector('input[name="student_identity"]:checked').value;
-    var rawTuition = 770 * 34;
-    var rawMaterials = (identity === 'new') ? 3520 : 0;
-    var rawMisc = 60 * 34;
+    var rawTuition = 770 * 34; // $26,180
+    var rawMaterials = (identity === 'old_no_mat') ? 0 : 3520; // 只有停用的無教材選項為 0，其餘皆含 $3,520
+    var rawMisc = 60 * 34; // $2,040
     
     var calcTuition = Math.round(rawTuition * discountRate);
     var calcMaterials = Math.round(rawMaterials * discountRate);
@@ -647,10 +648,9 @@ function calculateTuition() {
     document.getElementById('sub_materials').value = calcMaterials;
     document.getElementById('sub_misc').value = calcMisc;
 
-    var idText = (identity === 'new') ? "新生" : "舊生";
+    var idText = (identity === 'new') ? "新生" : (identity === 'old_with_mat' ? "舊生(含教材)" : "舊生(免教材)");
     document.getElementById('calcPreview').innerHTML = "📚 <b>【" + idText + "】應繳總金額套用折扣後：NT$ " + grandTotal.toLocaleString() + " 元</b>";
 }
-
 function showImagePreview(input) {
     var container = document.getElementById('photoContainer');
     var uploadText = document.getElementById('uploadText');
