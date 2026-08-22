@@ -531,7 +531,6 @@
                 <span style="font-size: 11.5px; font-weight: 500; color: var(--text-sub); display: block; margin-top: 4px; font-style: italic;">I have read, understood, and fully agreed to all the terms and conditions of Bobby English School services stated above.</span>
             </div>
 
-            <!-- 🎯 親筆電子簽名雙畫布結構 -->
             <div class="dual-signature-row">
                 <div class="signature-block">
                     <span class="signature-label">✍️ 甲方家長/監護人親筆電子簽名區：</span>
@@ -670,7 +669,7 @@ function showImagePreview(input) {
     }
 }
 
-// 🎯 核心修復：防止 FormSubmit 跳轉過快砍斷 GAS 背景異步連線
+// 🎯 核心修復：使用連線承諾 (Promise) 確保 GAS 接收完畢後才放行 FormSubmit 提交
 function prepareSubmit(e) {
     if (isCanvasBlank(parentCanvas) && parentCanvas.style.display !== 'none') {
         if(e) e.preventDefault();
@@ -720,27 +719,27 @@ function prepareSubmit(e) {
     
     var newGoogleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbw3eCiS6iHdO0yr9juNPGrwQhDoJYheE4PF0u4O4fadvI3ubv1HkZfsB6LmuzWs4BExRA/exec";
 
-    // 🎯 核心連線修復：優先使用 sendBeacon 穿透跳轉，或使用非同步 fetch 成功後再提交
-    if (navigator.sendBeacon) {
-        var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-        navigator.sendBeacon(newGoogleAppsScriptUrl, blob);
-        return true;
-    } else {
-        if (e) e.preventDefault();
-        var form = document.getElementById('enrollmentForm');
-        fetch(newGoogleAppsScriptUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        }).then(function() {
-            form.submit();
-        }).catch(function(err) {
-            console.warn("GAS fetch notice:", err);
-            form.submit();
-        });
-        return false;
-    }
+    // 🎯 阻止表單預設直接跳轉，改由非同步 fetch 完成後才提交 FormSubmit！
+    if (e) e.preventDefault();
+    
+    var submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerText = "資料處理與自動歸檔中... 請稍候";
+
+    fetch(newGoogleAppsScriptUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    }).then(function() {
+        // GAS 傳送完成後，正式放行表單提交給 FormSubmit 發送 Email
+        document.getElementById('enrollmentForm').submit();
+    }).catch(function(err) {
+        console.warn("GAS fetch notice:", err);
+        document.getElementById('enrollmentForm').submit();
+    });
+
+    return false;
 }
 
 function populateFormFromParams(params) {
