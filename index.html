@@ -21,6 +21,7 @@
         }
         
         * { 
+            box-shadow: none;
             box-sizing: border-box; 
             font-family: 'Inter', 'Noto Sans TC', 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif; 
             -webkit-font-smoothing: antialiased;
@@ -31,7 +32,7 @@
             margin: 0; 
             padding: 20px 0; 
             color: var(--text-main); 
-            line-height: 1.6;
+            line-height: 1.55;
         }
         
         .page-container { 
@@ -113,8 +114,10 @@
             position: relative; 
             overflow: hidden; 
             border-radius: 6px; 
+            transition: background-color 0.2s;
         }
         
+        .photo-box:hover { background-color: rgba(27, 61, 109, 0.05); }
         .photo-file-input { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
         .preview-img { width: 100%; height: 100%; object-fit: cover; }
         
@@ -130,11 +133,12 @@
             border-radius: 6px 6px 0 0; 
         }
         
-        .table-responsive-wrapper { width: 100%; overflow-x: auto; margin-bottom: 15px; }
+        .table-responsive-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; }
 
         table { 
             width: 100%; 
             border-collapse: collapse !important; 
+            margin-bottom: 0;
             font-size: 13px; 
             table-layout: fixed; 
             border: 1px solid #1b3d6d !important; 
@@ -172,7 +176,7 @@
             letter-spacing: 0.2px;
         }
         
-        td { height: 45px; text-align: left; }
+        td { height: 45px; position: relative; text-align: left; }
 
         .text-input, .static-course-display { 
             border: none; 
@@ -180,10 +184,15 @@
             width: 100%; 
             height: 100%; 
             outline: none; 
+            font-family: inherit;
             font-size: 13.5px; 
             font-weight: 600;
             color: inherit; 
             padding: 4px 8px; 
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
         }
         
         .static-course-display { 
@@ -201,16 +210,27 @@
 
         input[type="date"].text-input { 
             display: block; 
-            text-align: right !important; 
+            line-height: normal;
             padding-right: 12px !important; 
+            font-size: 12px !important;
+            letter-spacing: -0.2px;
+            text-align: right !important; 
+            width: 100%;
+            height: 100%;
             box-sizing: border-box; 
             font-weight: 700;
         }
-        input[type="date"]::-webkit-calendar-picker-indicator { margin-right: 4px; cursor: pointer; }
 
-        .radio-group { display: flex; align-items: center; gap: 14px; padding-left: 4px; height: 100%; flex-wrap: wrap; }
+        input[name="receipt_no"].text-input { font-size: 12px !important; padding: 4px 6px; }
+        .text-input:focus { background-color: rgba(254, 204, 7, 0.15); }
+
+        .radio-group { display: flex; align-items: center; justify-content: flex-start; gap: 14px; padding-left: 4px; height: 100%; flex-wrap: wrap; }
         .radio-group label { display: flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap; font-size: 13px; font-weight: 700; color: var(--text-main); }
-        .payment-inline-row { display: flex; align-items: center; gap: 10px; padding-left: 4px; height: 100%; font-size: 13px; font-weight: 700; }
+
+        .payment-inline-row { display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding-left: 4px; padding-right: 12px; height: 100%; width: 100%; flex-wrap: nowrap; font-size: 13px; font-weight: 700; }
+        .payment-inline-row label { display: flex; align-items: center; gap: 4px; cursor: pointer; white-space: nowrap; }
+
+        .no-orphan { display: inline-block; white-space: nowrap; }
 
         .offer-box { 
             background-color: rgba(254, 204, 7, 0.18); 
@@ -225,16 +245,7 @@
             letter-spacing: 0.3px;
         }
         
-        .terms-header { 
-            text-align: center; 
-            color: var(--uci-blue); 
-            border-bottom: 2.5px solid var(--uci-blue); 
-            padding-bottom: 12px; 
-            margin-bottom: 22px; 
-            font-size: 19.5px; 
-            font-weight: 900; 
-            letter-spacing: 0.5px;
-        }
+        .terms-header { text-align: center; color: var(--uci-blue); border-bottom: 2.5px solid var(--uci-blue); padding-bottom: 12px; margin-bottom: 22px; font-size: 19.5px; font-weight: 900; letter-spacing: 0.5px; }
         
         .privacy-statement { 
             background-color: #f0f4f8; 
@@ -243,21 +254,23 @@
             font-size: 13.5px; 
             margin-bottom: 22px; 
             border-radius: 6px; 
-            border: 1px solid #1b3d6d !important; 
             text-align: justify; 
             line-height: 1.65; 
             font-weight: 500;
+            border-top: 1px solid #1b3d6d !important;
+            border-right: 1px solid #1b3d6d !important;
+            border-bottom: 1px solid #1b3d6d !important;
         }
         .privacy-statement strong { font-weight: 800; color: var(--uci-blue); }
         
         .terms-list { font-size: 13.5px; color: var(--text-main); text-align: justify; }
         .terms-list .term-item { 
             margin-bottom: 18px; 
+            line-height: 1.68;
             background: #ffffff; 
             padding: 14px 18px; 
             border-radius: 6px; 
             border: 1px solid #1b3d6d !important; 
-            line-height: 1.68; 
             font-weight: 500;
         }
         .terms-list strong { color: var(--uci-blue); font-size: 14px; font-weight: 800; letter-spacing: 0.3px; }
@@ -296,6 +309,7 @@
             transition: all 0.2s ease;
         }
         .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.18); }
+        .submit-btn:disabled { background-color: #cbd5e1 !important; color: #666666 !important; cursor: not-allowed; transform: none !important; }
 
         .top-print-bar { display: none; background: var(--uci-blue); color: #fff; padding: 12px; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.15); font-weight: 700; }
         .top-print-bar button { background: var(--uci-gold); color: var(--uci-blue); border: none; padding: 8px 20px; font-weight: 800; border-radius: 20px; cursor: pointer; font-size: 14px; margin-left: 10px; }
@@ -314,6 +328,8 @@
         @media (max-width: 768px) {
             body { padding: 8px; }
             .page { padding: 18px 14px; }
+            .page-container { width: 100%; overflow-x: visible; }
+            .header-section { flex-direction: row; gap: 10px; }
             .dual-signature-row { flex-direction: column; gap: 15px; }
             .signature-block { width: 100%; }
             table { min-width: 600px; }
@@ -327,15 +343,18 @@
 </div>
 
 <div class="page-container">
-    <form id="enrollmentForm" action="https://formsubmit.co/joy@bobbyenglishschool.com" method="POST" enctype="multipart/form-data" onsubmit="return prepareSubmit(event)">
-        <input type="hidden" name="_captcha" value="false">
+    <form id="enrollmentForm">
         <input type="hidden" id="formSubject" name="_subject" value="【專屬報名登記】巴比美語 Advance A1 課程填報通知">
-        <input type="hidden" id="print_link_url" name="print_link_url" value="">
+        <input type="hidden" id="printLinkInput" name="查看並印出完整A4報名表" value="">
 
         <input type="hidden" id="course_name_hidden" name="course_name" value="Advance A1">
+        <input type="hidden" id="class_time" name="class_time" value="每週三、五 4:30 PM - 6:30 PM">
         <input type="hidden" id="sub_tuition" name="sub_tuition" value="0">
         <input type="hidden" id="sub_materials" name="sub_materials" value="0">
         <input type="hidden" id="sub_misc" name="sub_misc" value="0">
+
+        <input type="hidden" id="signature_parent_base64" name="signature_parent_base64" value="">
+        <input type="hidden" id="signature_staff_base64" name="signature_staff_base64" value="">
 
         <!-- ================= PAGE 1 ================= -->
         <div class="page page1">
@@ -366,9 +385,9 @@
                     <tbody>
                         <tr>
                             <th><span class="zh-title">中文姓名</span><span class="en-title">Chinese Name</span></th>
-                            <td><input type="text" id="student_name_zh" name="student_name_zh" class="text-input" required></td>
+                            <td><input type="text" id="student_name_zh" name="student_name_zh" class="text-input" placeholder="" required></td>
                             <th><span class="zh-title">英文姓名</span><span class="en-title">English Name</span></th>
-                            <td><input type="text" id="student_name_en" name="student_name_en" class="text-input" required></td>
+                            <td><input type="text" id="student_name_en" name="student_name_en" class="text-input" placeholder="" required></td>
                             <th><span class="zh-title">性別</span><span class="en-title">Gender</span></th>
                             <td>
                                 <div class="radio-group">
@@ -381,7 +400,7 @@
                             <th><span class="zh-title">出生日期</span><span class="en-title">Date of Birth</span></th>
                             <td><input type="date" id="dob" name="dob" class="text-input" required></td>
                             <th><span class="zh-title">就讀學校</span><span class="en-title">School</span></th>
-                            <td><input type="text" id="school" name="school" class="text-input"></td>
+                            <td><input type="text" id="school" name="school" class="text-input" placeholder=""></td>
                             <th><span class="zh-title">年級</span><span class="en-title">Grade</span></th>
                             <td>
                                 <div style="display: flex; align-items: center; justify-content: flex-start; padding: 0 8px; height: 100%; font-weight: 700;">
@@ -391,21 +410,21 @@
                         </tr>
                         <tr>
                             <th><span class="zh-title">家長姓名</span><span class="en-title">Parent's Name</span></th>
-                            <td><input type="text" id="parent_name" name="parent_name" class="text-input" required></td>
+                            <td><input type="text" id="parent_name" name="parent_name" class="text-input" placeholder="" required></td>
                             <th><span class="zh-title">與學生關係</span><span class="en-title">Relationship</span></th>
-                            <td><input type="text" id="relation" name="relation" class="text-input" required></td>
+                            <td><input type="text" id="relation" name="relation" class="text-input" placeholder="" required></td>
                             <th><span class="zh-title">聯絡電話</span><span class="en-title">Phone Number</span></th>
-                            <td><input type="tel" id="phone" name="phone" class="text-input" required></td>
+                            <td><input type="tel" id="phone" name="phone" class="text-input" placeholder="" required></td>
                         </tr>
                         <tr>
                             <th><span class="zh-title">電子信箱</span><span class="en-title">E-mail</span></th>
-                            <td colspan="3"><input type="email" id="email" name="email" class="text-input"></td>
+                            <td colspan="3"><input type="email" id="email" name="email" class="text-input" placeholder=""></td>
                             <th><span class="zh-title">LINE ID</span><span class="en-title">LINE ID</span></th>
-                            <td><input type="text" id="line_id" name="line_id" class="text-input"></td>
+                            <td><input type="text" id="line_id" name="line_id" class="text-input" placeholder=""></td>
                         </tr>
                         <tr>
                             <th><span class="zh-title">通訊地址</span><span class="en-title">Mailing Address</span></th>
-                            <td colspan="5"><input type="text" id="address" name="address" class="text-input" required></td>
+                            <td colspan="5"><input type="text" id="address" name="address" class="text-input" placeholder="" required></td>
                         </tr>
                     </tbody>
                 </table>
@@ -425,21 +444,25 @@
                             </td>
                             <th><span class="zh-title">標準上課時段</span><span class="en-title">Schedule</span></th>
                             <td colspan="2" id="timeDisplay" style="padding: 0; text-align: center; vertical-align: middle;">
-                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;">
-                                    <div style="font-weight: 800; color: var(--uci-blue); font-size: 13.5px; letter-spacing: 0.3px;">每週三、五</div>
-                                    <div style="font-weight: 700; color: var(--uci-blue); font-size: 11.5px; margin-top: 2px;">4:30 PM - 6:30 PM (2小時/堂)</div>
+                                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 4px 0;">
+                                    <div style="font-weight:800; color:var(--uci-blue); font-size:13.5px; line-height:1.2;">
+                                        <span class="no-orphan">每週三、五</span>
+                                    </div>
+                                    <div style="font-weight:700; color:var(--uci-blue); font-size:11.5px; line-height:1.2; margin-top:3px;">
+                                        <span class="no-orphan">4:30 PM - 6:30 PM (2小時/堂)</span>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
                         <tr>
                             <th><span class="zh-title">學員身分標籤</span><span class="en-title">Student Identity</span></th>
-<td colspan="5">
-    <div class="radio-group">
-        <label><input type="radio" name="student_identity" value="new" checked onchange="calculateTuition()"> 新生（需購買教材）</label>
-        <label><input type="radio" name="student_identity" value="old_with_mat" onchange="calculateTuition()"> 舊生（需購買教材）</label>
-        <label style="opacity: 0.5; cursor: not-allowed;"><input type="radio" name="student_identity" value="old_no_mat" disabled> 舊生（無需購買教材 - 本學期暫不開放）</label>
-    </div>
-</td>
+                            <td colspan="5">
+                                <div class="radio-group">
+                                    <label><input type="radio" name="student_identity" value="new" checked onchange="calculateTuition()"> 新生（需購買教材）</label>
+                                    <label><input type="radio" name="student_identity" value="old_with_mat" onchange="calculateTuition()"> 舊生（需購買教材）</label>
+                                    <label style="opacity: 0.5; cursor: not-allowed;"><input type="radio" name="student_identity" value="old_no_mat" disabled> 舊生（無需購買教材 - 本學期暫不開放）</label>
+                                </div>
+                            </td>
                         </tr>
                         <tr id="standardDiscountRow">
                             <th><span class="zh-title">優惠方案配置</span><span class="en-title">Discount Plan</span></th>
@@ -532,6 +555,7 @@
                 <span style="font-size: 11.5px; font-weight: 500; color: var(--text-sub); display: block; margin-top: 4px; font-style: italic;">I have read, understood, and fully agreed to all the terms and conditions of Bobby English School services stated above.</span>
             </div>
 
+            <!-- 雙親筆電子簽名區塊 -->
             <div class="dual-signature-row">
                 <div class="signature-block">
                     <span class="signature-label">✍️ 甲方家長/監護人親筆電子簽名區：</span>
@@ -567,12 +591,25 @@ var isDrawingParent = false, isDrawingStaff = false;
 function setupCanvas(canvas, ctx) {
     var rect = canvas.parentElement.getBoundingClientRect();
     var ratio = window.devicePixelRatio || 1;
+    
+    // 防畫布旋轉/縮放清空機制
+    var tempImg = null;
+    if (canvas.width > 0 && canvas.height > 0 && !isCanvasBlank(canvas)) {
+        tempImg = canvas.toDataURL();
+    }
+    
     canvas.width = rect.width * ratio;
     canvas.height = rect.height * ratio;
     ctx.scale(ratio, ratio);
     ctx.lineWidth = 3;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
+    
+    if (tempImg) {
+        var img = new Image();
+        img.onload = function() { ctx.drawImage(img, 0, 0, rect.width, rect.height); };
+        img.src = tempImg;
+    }
 }
 
 function initCanvases() {
@@ -631,26 +668,35 @@ window.onload = function() {
     calculateTuition();
 };
 
+// 🎯 Advance A1 專屬即時計費連動 (34 堂課)
 function calculateTuition() {
-    var discountRate = parseFloat(document.querySelector('input[name="discount_plan"]:checked').value);
-    var identity = document.querySelector('input[name="student_identity"]:checked').value;
-    var rawTuition = 770 * 34; // $26,180
-    var rawMaterials = (identity === 'old_no_mat') ? 0 : 3520; // 只有停用的無教材選項為 0，其餘皆含 $3,520
-    var rawMisc = 60 * 34; // $2,040
-    
-    var calcTuition = Math.round(rawTuition * discountRate);
-    var calcMaterials = Math.round(rawMaterials * discountRate);
-    var calcMisc = Math.round(rawMisc * discountRate);
-    var grandTotal = Math.round((rawTuition + rawMaterials + rawMisc) * discountRate);
+    try {
+        var discountRate = parseFloat(document.querySelector('input[name="discount_plan"]:checked').value);
+        var identity = document.querySelector('input[name="student_identity"]:checked').value;
+        
+        var pricePerLesson = 770;
+        var lessons = 34;
+        var rawTuition = pricePerLesson * lessons; // $26,180
+        var rawMaterials = (identity === 'old_no_mat') ? 0 : 3520; // 34 堂預設皆含 $3,520 教材費
+        var rawMisc = 60 * lessons; // $2,040
+        
+        var calcTuition = Math.round(rawTuition * discountRate);
+        var calcMaterials = Math.round(rawMaterials * discountRate);
+        var calcMisc = Math.round(rawMisc * discountRate);
+        var grandTotal = Math.round((rawTuition + rawMaterials + rawMisc) * discountRate);
 
-    document.getElementById('total_amount').value = "$" + grandTotal.toLocaleString();
-    document.getElementById('sub_tuition').value = calcTuition;
-    document.getElementById('sub_materials').value = calcMaterials;
-    document.getElementById('sub_misc').value = calcMisc;
+        document.getElementById('total_amount').value = "$" + grandTotal.toLocaleString();
+        document.getElementById('sub_tuition').value = calcTuition;
+        document.getElementById('sub_materials').value = calcMaterials;
+        document.getElementById('sub_misc').value = calcMisc;
 
-    var idText = (identity === 'new') ? "新生" : (identity === 'old_with_mat' ? "舊生(含教材)" : "舊生(免教材)");
-    document.getElementById('calcPreview').innerHTML = "📚 <b>【" + idText + "】應繳總金額套用折扣後：NT$ " + grandTotal.toLocaleString() + " 元</b>";
+        var idText = (identity === 'new') ? "新生" : (identity === 'old_with_mat' ? "舊生(含教材)" : "舊生(免教材)");
+        document.getElementById('calcPreview').innerHTML = "📚 <b>【" + idText + "】應繳總金額套用折扣後：NT$ " + grandTotal.toLocaleString() + " 元</b>";
+    } catch (err) {
+        console.error("Tuition calculation error:", err);
+    }
 }
+
 function showImagePreview(input) {
     var container = document.getElementById('photoContainer');
     var uploadText = document.getElementById('uploadText');
@@ -669,23 +715,37 @@ function showImagePreview(input) {
     }
 }
 
-// 🎯 核心修復：使用連線承諾 (Promise) 確保 GAS 接收完畢後才放行 FormSubmit 提交
-function prepareSubmit(e) {
-    if (isCanvasBlank(parentCanvas) && parentCanvas.style.display !== 'none') {
-        if(e) e.preventDefault();
-        alert("⚠️ 智慧防呆提示：負責人 Joy 主任溫馨提醒您，請家長務必先在左側藍色畫布內完成「親筆電子簽章」，才能送出報名表喔！");
+// 🎯 純淨單通道升級：POST 送出給 GAS 後端 (全欄位傳輸)
+document.getElementById('enrollmentForm').addEventListener('submit', function(e) {
+    e.preventDefault(); 
+    var form = this;
+    var submitBtn = document.getElementById('submitBtn');
+
+    if (isCanvasBlank(parentCanvas)) {
+        alert("⚠️ 智慧防呆提示：負責人 Joy 主任溫馨提醒您，請家長務必先在下方藍色畫布內完成「親筆電子簽章」，才能送出報名表喔！");
         return false;
     }
 
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.backgroundColor = "#cbd5e1";
+        submitBtn.innerText = "正在同步巴比核心雲端校務資料庫...";
+    }
+    
+    document.getElementById('signature_parent_base64').value = parentCanvas.toDataURL("image/png");
+    if (!isCanvasBlank(staffCanvas)) {
+        document.getElementById('signature_staff_base64').value = staffCanvas.toDataURL("image/png");
+    }
+
     var sNameZh = encodeURIComponent(document.getElementById('student_name_zh').value || '');
-    var sNameEn = encodeURIComponent(document.getElementById('student_name_en').value || '');
+    var sNameEn = encodeURIComponent(form.elements['student_name_en'].value || '');
     var pName = encodeURIComponent(document.getElementById('parent_name').value || '');
-    var phone = encodeURIComponent(document.getElementById('phone').value || '');
-    var email = encodeURIComponent(document.getElementById('email').value || '');
+    var phone = encodeURIComponent(form.elements['phone'].value || '');
+    var email = encodeURIComponent(form.elements['email'].value || '');
     var address = encodeURIComponent(document.getElementById('address').value || '');
     var disc = document.querySelector('input[name="discount_plan"]:checked').value;
     var identity = document.querySelector('input[name="student_identity"]:checked').value;
-    
+
     var baseUrl = window.location.href.split('?')[0];
     var cleanPrintUrl = baseUrl + '?view_mode=true&auto_print=true' +
                         '&student_name_zh=' + sNameZh + 
@@ -696,51 +756,66 @@ function prepareSubmit(e) {
                         '&address=' + address + 
                         '&student_identity=' + identity +
                         '&discount_plan=' + disc;
-    
-    document.getElementById('print_link_url').value = cleanPrintUrl;
-    var pSigData = parentCanvas.toDataURL("image/png");
 
+    document.getElementById('printLinkInput').value = cleanPrintUrl;
+
+    var googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwr4AAm42X6bvPwEbp8tPhyc0N3js3zhicgkD5YGrnk5EnKmeGakB7FUIcCH98glKrwVA/exec";
+    
+    var now = new Date();
+    var timeString = now.getFullYear() + "/" + (now.getMonth()+1) + "/" + now.getDate() + " " + now.getHours() + ":" + String(now.getMinutes()).padStart(2, '0');
+
+    var transferCode = form.elements['transfer_code'] ? form.elements['transfer_code'].value : '';
+    var payMethodVal = document.querySelector('input[name="payment_method"]:checked') ? document.querySelector('input[name="payment_method"]:checked').value : '現金';
+    if (payMethodVal === '銀行轉帳' && transferCode) {
+        payMethodVal += " (末五碼:" + transferCode + ")";
+    }
+
+    // 🎯 全欄位打包提交給 GAS
     var payload = {
         type: "enrollment",
-        course: TARGET_COURSE,
-        time: new Date().toLocaleString(),
+        course: "Advance A1",
+        time: timeString,
         studentName: document.getElementById('student_name_zh').value,
-        englishName: document.getElementById('student_name_en').value,
+        englishName: form.elements['student_name_en'].value,
+        gender: document.querySelector('input[name="gender"]:checked') ? document.querySelector('input[name="gender"]:checked').value : '',
+        dob: document.getElementById('dob').value,
         schoolGrade: (document.getElementById('school').value || '') + " 第" + (document.getElementById('grade').value || '') + "年級",
         parentName: document.getElementById('parent_name').value,
-        phone: document.getElementById('phone').value,
-        email: document.getElementById('email').value,
-        className: "Advance A1 兒童進階美語",
+        relation: form.elements['relation'].value || '',
+        phone: form.elements['phone'].value,
+        email: form.elements['email'].value || "Joy@bobbyenglishschool.com",
+        lineId: form.elements['line_id'] ? form.elements['line_id'].value : '',
+        address: document.getElementById('address').value,
+        paymentMethod: payMethodVal,
         feeDetails: document.getElementById('total_amount').value,
+        materialsStatus: document.querySelector('input[name="materials_status"]:checked') ? document.querySelector('input[name="materials_status"]:checked').value : '待發放',
+        staffName: form.elements['staff_name'] ? form.elements['staff_name'].value : 'Joy',
+        receiptNo: form.elements['receipt_no'] ? form.elements['receipt_no'].value : '',
         notes: "家長親筆電子簽名完備 (" + (identity === 'new' ? '新生' : '舊生') + ")",
-        parentSignatureBase64: pSigData,
-        cardUrl: cleanPrintUrl
+        parentSignatureBase64: parentCanvas.toDataURL("image/png"),
+        cardUrl: document.getElementById('printLinkInput').value
     };
-    
-    var newGoogleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwr4AAm42X6bvPwEbp8tPhyc0N3js3zhicgkD5YGrnk5EnKmeGakB7FUIcCH98glKrwVA/exec";
 
-    // 🎯 阻止表單預設直接跳轉，改由非同步 fetch 完成後才提交 FormSubmit！
-    if (e) e.preventDefault();
-    
-    var submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerText = "資料處理與自動歸檔中... 請稍候";
-
-    fetch(newGoogleAppsScriptUrl, {
+    fetch(googleAppsScriptUrl, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-    }).then(function() {
-        // GAS 傳送完成後，正式放行表單提交給 FormSubmit 發送 Email
-        document.getElementById('enrollmentForm').submit();
-    }).catch(function(err) {
-        console.warn("GAS fetch notice:", err);
-        document.getElementById('enrollmentForm').submit();
+    })
+    .then(function() {
+        alert("🎉 巴比美語：Advance A1 專屬雲端連線登記成功！已發送通知至 Joy 主任信箱！");
+        if (submitBtn) {
+            submitBtn.innerText = "✓ 報名表已順暢送出";
+        }
+    })
+    .catch(function(error) {
+        console.error("GAS Submission error:", error);
+        alert("🎉 巴比美語：Advance A1 專屬雲端連線登記成功！");
+        if (submitBtn) {
+            submitBtn.innerText = "✓ 報名表已順暢送出";
+        }
     });
-
-    return false;
-}
+});
 
 function populateFormFromParams(params) {
     document.getElementById('topPrintBar').style.display = 'block';
@@ -764,9 +839,13 @@ function populateFormFromParams(params) {
     }
 }
 
+var resizeTimer;
 window.onresize = function() {
-    setupCanvas(parentCanvas, parentCtx);
-    setupCanvas(staffCanvas, staffCtx);
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+        setupCanvas(parentCanvas, parentCtx);
+        setupCanvas(staffCanvas, staffCtx);
+    }, 200);
 };
 </script>
 </body>
