@@ -490,7 +490,7 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
     var receiptNo = encodeURIComponent(form.elements['receipt_no'] ? form.elements['receipt_no'].value : '');
     var matStatus = encodeURIComponent(document.querySelector('input[name="materials_status"]:checked') ? document.querySelector('input[name="materials_status"]:checked').value : '待發放');
 
-    // ⚡ 核心修正 1：純文字輕量化預覽 URL (移除巨大的 Base64，避免網址爆炸)
+    // ⚡ 核心打包：輕量文字網址 (基底)
     var baseUrl = window.location.href.split('?')[0];
     var cleanPrintUrl = baseUrl + '?view_mode=true&auto_print=true' +
                         '&student_name_zh=' + sNameZh + 
@@ -522,7 +522,6 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
     var rawPayString = payMethodVal;
     if (payMethodVal === '銀行轉帳' && transferCode) rawPayString += " (末五碼:" + transferCode + ")";
 
-    // ⚡ 核心修正 2：Payload 物件補齊名牌對照，確保 GAS 後端 100% 讀到網址與各欄位
     var payload = {
         type: "enrollment",
         course: "Advance A1",
@@ -530,7 +529,6 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
         studentName: document.getElementById('student_name_zh').value,
         studentNameZh: document.getElementById('student_name_zh').value,
         englishName: form.elements['student_name_en'].value,
-        studentNameEn: form.elements['student_name_en'].value,
         gender: document.querySelector('input[name="gender"]:checked') ? document.querySelector('input[name="gender"]:checked').value : '',
         dob: document.getElementById('dob').value,
         schoolGrade: (document.getElementById('school').value || '') + " 第" + (document.getElementById('grade').value || '') + "年級",
@@ -542,7 +540,6 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
         address: document.getElementById('address').value,
         paymentMethod: rawPayString,
         feeDetails: document.getElementById('total_amount').value,
-        totalAmount: document.getElementById('total_amount').value,
         materialsStatus: document.querySelector('input[name="materials_status"]:checked') ? document.querySelector('input[name="materials_status"]:checked').value : '待發放',
         staffName: form.elements['staff_name'] ? form.elements['staff_name'].value : 'Joy',
         receiptNo: form.elements['receipt_no'] ? form.elements['receipt_no'].value : '',
@@ -550,7 +547,7 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
         parentSignatureBase64: parentSigBase64,
         studentPhotoBase64: document.getElementById('student_photo_base64').value,
         cardUrl: cleanPrintUrl,
-        print_link_url: cleanPrintUrl
+        baseUrl: baseUrl // 傳送基底網址讓 GAS 自動組合 Drive 照片與簽名連結
     };
 
     fetch(googleAppsScriptUrl, {
@@ -570,38 +567,47 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
     });
 });
 
+// ⚡ 核心還原函數：完美解析圖片與簽名網址並載入畫布
 function populateFormFromParams(params) {
     document.getElementById('topPrintBar').style.display = 'block';
     document.getElementById('submitBtnContainer').style.display = 'none';
 
     params.forEach(function(value, key) {
-        if (key === 'photo_base64' && value) {
+        var decodedValue = decodeURIComponent(value);
+        if ((key === 'photo_url' || key === 'photo_base64') && decodedValue && decodedValue !== '未上傳照片') {
             var container = document.getElementById('photoContainer');
             var uploadText = document.getElementById('uploadText');
             if (uploadText) uploadText.style.display = 'none';
+            var oldImg = container.querySelector('.preview-img');
+            if (oldImg) oldImg.remove();
             var img = document.createElement('img');
-            img.src = decodeURIComponent(value);
+            img.src = decodedValue;
             img.className = 'preview-img';
+            img.crossOrigin = "anonymous";
             container.appendChild(img);
-        } else if (key === 'sig_base64' && value) {
+        } else if ((key === 'sig_url' || key === 'sig_base64') && decodedValue && decodedValue !== '未提供簽名檔') {
             var imgSig = new Image();
+            imgSig.crossOrigin = "anonymous";
             imgSig.onload = function() {
                 parentCtx.drawImage(imgSig, 0, 0, parentCanvas.width / (window.devicePixelRatio || 1), parentCanvas.height / (window.devicePixelRatio || 1));
             };
-            imgSig.src = decodeURIComponent(value);
+            imgSig.src = decodedValue;
         } else {
             var field = document.getElementsByName(key)[0] || document.getElementById(key);
             if (field) {
                 if (field.type === 'radio') {
-                    var radio = document.querySelector('input[name="' + key + '"][value="' + value + '"]');
+                    var radio = document.querySelector('input[name="' + key + '"][value="' + decodedValue + '"]');
                     if (radio) radio.checked = true;
-                } else { field.value = decodeURIComponent(value); }
+                } else { field.value = decodedValue; }
             }
         }
     });
 
     calculateTuition();
-    if (params.get('auto_print') === 'true') setTimeout(function() { window.print(); }, 1000);
+    // 延遲 1.2 秒等待 Google Drive 圖片渲染完畢後自動跳出列印視窗
+    if (params.get('auto_print') === 'true') {
+        setTimeout(function() { window.print(); }, 1200);
+    }
 }
 
 var resizeTimer;
